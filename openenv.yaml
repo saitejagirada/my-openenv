@@ -1,0 +1,13 @@
+spec_version: 1
+name: "customer-support-triage"
+version: "1.0.0"
+type: "space"
+runtime: "fastapi"
+app: "app:app"
+port: 7860
+description: "A real-world customer support simulation environment requiring information extraction, system actions, and routing."
+tags: ["openenv", "text", "customer-support"]
+tasks:
+  - easy_password_reset
+  - medium_hardware_issue
+  - hard_refund_processing
