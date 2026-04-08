@@ -31,7 +31,7 @@ class CustomerSupportEnv(es.Environment):
             "status": "OPEN",
             "episode_id": episode_id
         }
-        return self._get_obs(reward=0.0, feedback="")
+        return self._get_obs(reward=0.01, feedback="")
 
     @property
     def state(self) -> State:
@@ -46,7 +46,9 @@ class CustomerSupportEnv(es.Environment):
             step_count=self.step_count
         )
 
-    def _get_obs(self, reward: float = 0.0, feedback: str = "") -> Observation:
+    def _get_obs(self, reward: float = 0.01, feedback: str = "") -> Observation:
+        # Clamp ALL rewards strictly between 0 and 1 (exclusive)
+        clamped_reward = max(0.01, min(0.99, reward))
         return Observation(
             ticket_id=self.state_data["ticket_id"],
             customer_message=self.state_data["customer_message"],
@@ -55,16 +57,16 @@ class CustomerSupportEnv(es.Environment):
             status=self.state_data["status"],
             refund_processed=self.state_data["refund_processed"],
             done=self.done,
-            reward=reward,
+            reward=clamped_reward,
             metadata={"feedback": feedback, "state": self.state_data}
         )
 
     def step(self, action: Action, timeout_s: Optional[float] = None, **kwargs: Any) -> Observation:
         if self.done:
-            return self._get_obs(reward=0.0, feedback="Episode already done")
+            return self._get_obs(reward=0.01, feedback="Episode already done")
 
         self.step_count += 1
-        reward_val = 0.0
+        reward_val = 0.01
         feedback = ""
         task = TASKS[self.current_task_idx]
 
@@ -84,27 +86,27 @@ class CustomerSupportEnv(es.Environment):
                     reply = f"Here is my {req}: [MOCK_DATA]"
                     self.state_data["history"].extend([f"Agent: {action.argument}", f"Customer: {reply}"])
                     self.state_data["customer_message"] = reply
-                    reward_val = 0.2
+                    reward_val = 0.3
                     feedback = f"Successfully collected {req}"
                     found = True
                     break
             if not found:
-                reward_val = -0.1
+                reward_val = 0.05
                 feedback = "Asked for unnecessary information."
 
         elif action.action_type == "REFUND":
             if task.needs_refund and "order_id" in self.state_data["collected_info"]:
                 self.state_data["refund_processed"] = True
-                reward_val = 0.3
+                reward_val = 0.4
                 feedback = "Refund processed successfully."
             else:
-                reward_val = -0.5
+                reward_val = 0.05
                 feedback = "Cannot process refund without order ID or refund not required."
 
         elif action.action_type == "ROUTE":
             self.state_data["route"] = action.argument
             if self.state_data["missing_info"]:
-                reward_val = -0.5
+                reward_val = 0.05
                 feedback = "Routed prematurely without gathering required info."
             else:
                 self.done = True
