@@ -1,14 +1,3 @@
----
-title: Customer Support Triage
-emoji: 🎧
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-sdk_version: "1.0.0"
-python_version: "3.10.0"
-app_file: app.py
-pinned: false
----
 # Customer Support Triage Environment
 
 A real-world customer support simulation environment requiring information extraction, system actions, and routing. 
