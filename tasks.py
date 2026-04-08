@@ -43,4 +43,5 @@ def grader(task: TaskDef, final_state: dict) -> float:
     if task.needs_refund and final_state.get("refund_processed", False):
         score += 1.0
         
-    return score / total_checks
+    final_score = score / total_checks
+    return max(0.01, min(0.99, final_score))
