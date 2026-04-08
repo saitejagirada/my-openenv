@@ -92,8 +92,12 @@ def run_inference():
             print(f"[STEP] step={step_idx} action={action_str} reward={reward_val:.2f} done={str(done).lower()} error={error_msg}")
 
         # [END] FORMAT
-        # A score > 0.8 typically means success based on our grader logic
-        final_score = sum(rewards_history) if rewards_history else 0.0
+        # Use the last reward (grader's final score) as the task score
+        # Clamp strictly between 0.01 and 0.99 to satisfy validator
+        if rewards_history:
+            final_score = max(0.01, min(0.99, rewards_history[-1]))
+        else:
+            final_score = 0.01
         success = final_score > 0.8
         rewards_str = ",".join([f"{r:.2f}" for r in rewards_history])
         print(f"[END] success={str(success).lower()} steps={step_idx} score={final_score:.2f} rewards={rewards_str}")
