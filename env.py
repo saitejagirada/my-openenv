@@ -71,7 +71,8 @@ class CustomerSupportEnv(es.Environment):
         # Penalize infinite loops / max steps
         if self.step_count >= self.max_steps:
             self.done = True
-            return self._get_obs(reward=-0.5, feedback="Max steps reached")
+            final_score = grader(task, self.state_data)
+            return self._get_obs(reward=float(final_score), feedback="Max steps reached")
 
         if action.action_type == "ASK_INFO":
             asked = action.argument.lower()
